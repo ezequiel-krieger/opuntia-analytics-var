@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opuntia Data-Driven | Master Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; margin: 0; }
+        .card { background: white; border-radius: 1rem; box-shadow: 0 4px 12px -2px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; }
+        .metric-card { border-top: 6px solid #10b981; }
+        select { cursor: pointer; border: 1px solid #cbd5e1; border-radius: 0.5rem; padding: 0.7rem; font-weight: 700; color: #334155; width: 100%; background-color: #f8fafc; height: 48px; }
+        .chart-container { position: relative; height: 450px; width: 100%; min-height: 450px; }
+        .radio-box { transition: all 0.2s; border-width: 2px; border-color: #e2e8f0; }
+        .radio-box.active { border-color: #2563eb; background-color: #eff6ff; color: #1e3a8a; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <header class="bg-slate-900 text-white py-6 shadow-2xl border-b-4 border-emerald-500">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center w-full gap-4">
+            <div>
+                <h1 class="text-3xl font-black tracking-tighter text-emerald-400 italic uppercase">Opuntia Data-Driven</h1>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Agriculture Intelligence Pro System</p>
+            </div>
+            <div class="bg-emerald-500/10 border border-emerald-500/30 px-5 py-2 rounded-full flex items-center gap-3">
+                <i data-lucide="database" class="w-5 h-5 text-emerald-400"></i>
+                <span class="text-sm font-mono font-black text-emerald-400 uppercase tracking-widest">Dataset Real: n = 200</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow w-full">
+        <div class="lg:col-span-4 flex flex-col gap-6">
+            <section class="card p-6 border-l-8 border-l-emerald-600">
+                <div class="flex items-center gap-3 mb-6 border-b border-slate-100 pb-3">
+                    <i data-lucide="filter" class="w-5 h-5 text-emerald-600"></i>
+                    <h2 class="text-sm font-black text-slate-500 uppercase tracking-widest">1. Filtros</h2>
+                </div>
+                <div class="space-y-4">
+                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Empresa</label><select id="selEmpresa"></select></div>
+                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Campaña</label><select id="selCampana"></select></div>
+                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">GM (Madurez)</label><select id="selGM"></select></div>
+                    <div><label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Variedad</label><select id="selVariedad"></select></div>
+                </div>
+            </section>
+
+            <section class="card p-6 border-l-8 border-l-blue-600">
+                <div class="flex items-center gap-3 mb-4 border-b border-slate-100 pb-3">
+                    <i data-lucide="trending-up" class="w-5 h-5 text-blue-600"></i>
+                    <h2 class="text-sm font-black text-slate-500 uppercase tracking-widest">2. Ajuste</h2>
+                </div>
+                <div class="space-y-2">
+                    <label class="radio-box flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all" id="lblLin">
+                        <input type="radio" name="mType" value="linear" class="hidden"> <span class="ml-1 text-sm font-bold uppercase">Lineal</span>
+                    </label>
+                    <label class="radio-box active flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all border-blue-500 bg-blue-50" id="lblQuad">
+                        <input type="radio" name="mType" value="quadratic" checked class="hidden"> <span class="ml-1 text-sm font-black uppercase">Cuadrática</span>
+                    </label>
+                    <label class="radio-box flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all border-slate-100" id="lblExp">
+                        <input type="radio" name="mType" value="exponential" class="hidden"> <span class="ml-1 text-sm font-bold uppercase">Exponencial</span>
+                    </label>
+                </div>
+            </section>
+
+            <section class="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl text-center">
+                <input type="number" id="inpX" step="0.01" placeholder="NDVI" class="w-full bg-slate-800 border-2 border-slate-700 rounded-2xl py-5 px-6 text-5xl font-mono text-emerald-400 text-center outline-none mb-6">
+                <div class="bg-slate-800/80 p-8 rounded-3xl border-2 border-emerald-500/40">
+                    <div id="outY" class="text-6xl font-black text-white mt-3 mb-1 tabular-nums">--</div>
+                    <span class="text-xs font-bold text-emerald-500 uppercase tracking-widest">TONELADAS / HA</span>
+                </div>
+            </section>
+        </div>
+
+        <div class="lg:col-span-8 flex flex-col gap-6 w-full">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="card metric-card p-5 text-center"><div class="text-[10px] font-black text-slate-400 uppercase mb-1">Muestra Filtrada</div><div id="valN" class="text-4xl font-black text-slate-800">0</div></div>
+                <div class="card metric-card p-5 text-center" style="border-top-color:#2563eb"><div class="text-[10px] font-black text-slate-400 uppercase mb-1">Precisión R²</div><div id="valR2" class="text-4xl font-black text-blue-600">--</div></div>
+                <div class="card metric-card p-5 text-center"><div class="text-[10px] font-black text-slate-400 uppercase mb-1">Promedio Tn/Ha</div><div id="valAvg" class="text-4xl font-black text-emerald-600">--</div></div>
+            </div>
+
+            <div class="card p-8 min-h-[580px] flex flex-col relative overflow-hidden">
+                <div class="chart-container flex-grow"><canvas id="yieldChart"></canvas></div>
+                <div class="mt-4 flex justify-center gap-6">
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500"></span><span class="text-[10px] font-bold text-slate-500 uppercase">Seleccionado</span></div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-slate-200"></span><span class="text-[10px] font-bold text-slate-500 uppercase">Otros Datos</span></div>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 border-4 border-dashed border-slate-200 p-8 rounded-3xl text-center">
+                <div id="txtEq" class="font-mono text-xl text-slate-700 bg-white p-6 rounded-2xl border-2 border-slate-200 font-black italic tracking-tight">--</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // DATASET REAL EXTRAÍDO (n=200 exactos)
+        const rawData = [{"id": "(20-21) 10E - DM 60I62", "var": "DM 60I62", "x": 0.9012, "y": 4.069, "gm": "VI medio", "emp": "GCN", "cam": "20-21"}, {"id": "(20-21) 10G - M 6210", "var": "M 6210", "x": 0.8879, "y": 3.36, "gm": "VI medio", "emp": "GCN", "cam": "20-21"}, {"id": "(20-21) 10K, 11K, 9L, 10L y 11L - DM 75I75", "var": "DM 75I75", "x": 0.9052, "y": 4.051, "gm": "VII medio", "emp": "GCN", "cam": "20-21"}, {"id": "(20-21) 11G - DM 60I62", "var": "DM 60I62", "x": 0.8857, "y": 3.277, "gm": "VI medio", "emp": "GCN", "cam": "20-21"}, {"id": "(20-21) 12G - DM 60I62", "var": "DM 60I62", "x": 0.8867, "y": 3.32, "gm": "VI medio", "emp": "GCN", "cam": "20-21"}, {"id": "(20-21) 13G - DM 60I62", "var": "DM 60I62", "x": 0.8976, "y": 3.695, "gm": "VI medio", "emp": "GCN", "cam": "20-21"}, {"id": "(20-21) 14G - DM 60I62", "var": "DM 60I62", "x": 0.8966, "y": 3.802, "gm": "VI medio", "emp": "GCN", "cam": "20-21"}, {"id": "(20-21) 15G - DM 60I62", "var": "DM 60I62", "x": 0.8966, "y": 3.893, "gm": "VI medio", "emp": "GCN", "cam": "20-21"}, {"id": "(20-21) 16G - DM 60I62", "var": "DM 60I62", "x": 0.8649, "y": 3.883, "gm": "VI medio", "emp": "GCN", "cam": "20-21"}, {"id": "(20-21) 1B y 2B - M 6210", "var": "M 6210", "x": 0.9017, "y": 3.55, "gm": "VI medio", "emp": "GCN", "cam": "20-21"}, {"id": "(20-21) 7A y 8A - M 6210", "var": "M 6210", "x": 0.91, "y": 3.477, "gm": "VI medio", "emp": "GCN", "cam": "20-21"}, {"id": "(20-21) 7B y 8B - M 6210", "var": "M 6210", "x": 0.9092, "y": 3.427, "gm": "VI medio", "emp": "GCN", "cam": "20-21"}, {"id": "(20-21) 7C - CZ 6505", "var": "CZ 6505", "x": 0.9059, "y": 4.171, "gm": "VI medio", "emp": "GCN", "cam": "20-21"}, {"id": "(20-21) 7D - CZ 6505", "var": "CZ 6505", "x": 0.9078, "y": 3.833, "gm": "VI medio", "emp": "GCN", "cam": "20-21"}, {"id": "(20-21) 8C - CZ 6505", "var": "CZ 6505", "x": 0.9054, "y": 3.885, "gm": "VI medio", "emp": "GCN", "cam": "20-21"}, {"id": "(20-21) 8D - CZ 6505", "var": "CZ 6505", "x": 0.8987, "y": 3.527, "gm": "VI medio", "emp": "GCN", "cam": "20-21"}, {"id": "(20-21) 9G - M 6210", "var": "M 6210", "x": 0.8974, "y": 3.778, "gm": "VI medio", "emp": "GCN", "cam": "20-21"}, {"id": "(21-22) 10D - DM 67I70", "var": "DM 67I70", "x": 0.8943, "y": 4.3, "gm": "VI largo", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 10H - DM 67I70", "var": "DM 67I70", "x": 0.8947, "y": 4.23, "gm": "VI largo", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 10I - DM 60I62", "var": "DM 60I62", "x": 0.8837, "y": 4.3, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 10J - DM 60I62", "var": "DM 60I62", "x": 0.8809, "y": 4.3, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 11D - DM 67I70", "var": "DM 67I70", "x": 0.8891, "y": 4.2, "gm": "VI largo", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 11I - NS 6120", "var": "NS 6120", "x": 0.8706, "y": 4.086, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 11J - NS 6120", "var": "NS 6120", "x": 0.8898, "y": 4.359, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 12F - DM 75I75", "var": "DM 75I75", "x": 0.8889, "y": 4.44, "gm": "VII medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 13E - A 6210", "var": "A 6210", "x": 0.883, "y": 4.37, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 13F - DM 75I75", "var": "DM 75I75", "x": 0.8892, "y": 4.24, "gm": "VII medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 14E, 15E y 16E - A 6210", "var": "A 6210", "x": 0.8806, "y": 4.42, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 14F - A 6210", "var": "A 6210", "x": 0.876, "y": 4.55, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 15F - A 6210", "var": "A 6210", "x": 0.8819, "y": 4.18, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 16F - A 6210", "var": "A 6210", "x": 0.8823, "y": 4.04, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 1A Y 2A - A 6210", "var": "A 6210", "x": 0.8838, "y": 3.59, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 3A y 4A - A 6210", "var": "A 6210", "x": 0.8736, "y": 3.52, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 3B y 4B - DM 75I75", "var": "DM 75I75", "x": 0.8911, "y": 3.9, "gm": "VII medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 5A y 6A - A 6210", "var": "A 6210", "x": 0.887, "y": 3.54, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 5B y 6B - DM 75I75", "var": "DM 75I75", "x": 0.8859, "y": 3.83, "gm": "VII medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 9D - DM 67I70", "var": "DM 67I70", "x": 0.8907, "y": 3.35, "gm": "VI largo", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 9E - A 6210", "var": "A 6210", "x": 0.8832, "y": 4.35, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 9F, 10F y 11F - DM 75I75", "var": "DM 75I75", "x": 0.9104, "y": 4.38, "gm": "VII medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 9H - DM 67I70", "var": "DM 67I70", "x": 0.892, "y": 4.58, "gm": "VI largo", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 9I - DM 60I62", "var": "DM 60I62", "x": 0.8881, "y": 4.532, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 9J - DM 60I62", "var": "DM 60I62", "x": 0.886, "y": 4.43, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) 9K - DM 60I62", "var": "DM 60I62", "x": 0.8885, "y": 4.34, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(21-22) Herradura - A 6210", "var": "A 6210", "x": 0.8583, "y": 3.84, "gm": "VI medio", "emp": "GCN", "cam": "21-22"}, {"id": "(22-23) 10E - DM 60I62", "var": "DM 60I62", "x": 0.769, "y": 2.864, "gm": "VI medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 10G - DM 75I75", "var": "DM 75I75", "x": 0.7438, "y": 1.864, "gm": "VII medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 10K, 11K, 9L, 10L y 11L - DM 60I62", "var": "DM 60I62", "x": 0.7958, "y": 2.746, "gm": "VI medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 11E - DM 60I62", "var": "DM 60I62", "x": 0.7886, "y": 2.864, "gm": "VI medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 11G - DM 75I75", "var": "DM 75I75", "x": 0.7349, "y": 2.21, "gm": "VII medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 12D y 13D - DM 67I70", "var": "DM 67I70", "x": 0.7589, "y": 2.02, "gm": "VI largo", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 12E - DM 60I62", "var": "DM 60I62", "x": 0.7706, "y": 3.181, "gm": "VI medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 12G - DM 75I75", "var": "DM 75I75", "x": 0.7637, "y": 2.463, "gm": "VII medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 13G - DM 75I75", "var": "DM 75I75", "x": 0.7863, "y": 2.642, "gm": "VII medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 14D - DM 67I70", "var": "DM 67I70", "x": 0.7686, "y": 1.95, "gm": "VI largo", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 14G - DM 75I75", "var": "DM 75I75", "x": 0.7814, "y": 2.778, "gm": "VII medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 15D y 16D - A 6210", "var": "A 6210", "x": 0.7247, "y": 1.5, "gm": "VI medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 15G - DM 75I75", "var": "DM 75I75", "x": 0.8023, "y": 3.066, "gm": "VII medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 1B y 2B - A 6210", "var": "A 6210", "x": 0.7927, "y": 1.971, "gm": "VI medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 7A y 8A - A 6210", "var": "A 6210", "x": 0.6808, "y": 1.355, "gm": "VI medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 7B y 8B - NS 6120", "var": "NS 6120", "x": 0.6922, "y": 1.23, "gm": "VI medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 7C - DM 60I62", "var": "DM 60I62", "x": 0.7741, "y": 2.472, "gm": "VI medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 7D - DM 60I62", "var": "DM 60I62", "x": 0.7963, "y": 2.778, "gm": "VI medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 8C - DM 60I62", "var": "DM 60I62", "x": 0.7734, "y": 2.437, "gm": "VI medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 8D - DM 60I62", "var": "DM 60I62", "x": 0.7439, "y": 2.076, "gm": "VI medio", "emp": "GCN", "cam": "22-23"}, {"id": "(22-23) 9G - DM 75I75", "var": "DM 75I75", "x": 0.7195, "y": 1.804, "gm": "VII medio", "emp": "GCN", "cam": "22-23"}, {"id": "(23-24) 10D - DM 67I70", "var": "DM 67I70", "x": 0.6693, "y": 0.354, "gm": "VI largo", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 10I - DM 60I62", "var": "DM 60I62", "x": 0.5863, "y": 1.058, "gm": "VI medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 10J - DM 60I62", "var": "DM 60I62", "x": 0.5785, "y": 1.207, "gm": "VI medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 11D - DM 67I70", "var": "DM 67I70", "x": 0.6731, "y": 0.422, "gm": "VI largo", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 11I - DM 60I62", "var": "DM 60I62", "x": 0.5596, "y": 1.058, "gm": "VI medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 11J - DM 60I62", "var": "DM 60I62", "x": 0.5829, "y": 1.325, "gm": "VI medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 13E - DM 75I75", "var": "DM 75I75", "x": 0.6252, "y": 0.513, "gm": "VII medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 14E, 15E y 16E - A 6210", "var": "A 6210", "x": 0.7062, "y": 0.597, "gm": "VI medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 14F - DM 75I75", "var": "DM 75I75", "x": 0.6696, "y": 0.577, "gm": "VII medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 15F - DM 75I75", "var": "DM 75I75", "x": 0.6432, "y": 0.634, "gm": "VII medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 16F - DM 75I75", "var": "DM 75I75", "x": 0.6917, "y": 1.504, "gm": "VII medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 1A y 2A - A 6210", "var": "A 6210", "x": 0.5925, "y": 0.532, "gm": "VI medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 3A y 4A - A 6210", "var": "A 6210", "x": 0.66, "y": 0.551, "gm": "VI medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 3B y 4B - A 6210", "var": "A 6210", "x": 0.6644, "y": 0.498, "gm": "VI medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 5B y 6B - CZ 7521", "var": "CZ 7521", "x": 0.5861, "y": 0.326, "gm": "VII medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 9D - DM 67I70", "var": "DM 67I70", "x": 0.6614, "y": 0.53, "gm": "VI largo", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 9E - CZ 7521", "var": "CZ 7521", "x": 0.6698, "y": 0.878, "gm": "VII medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 9H - DM 60I62", "var": "DM 60I62", "x": 0.6006, "y": 1.196, "gm": "VI medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 9I - DM 60I62", "var": "DM 60I62", "x": 0.6014, "y": 1.227, "gm": "VI medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) 9K - DM 60I62", "var": "DM 60I62", "x": 0.6018, "y": 1.252, "gm": "VI medio", "emp": "GCN", "cam": "23-24"}, {"id": "(23-24) Herradura - A 6210", "var": "A 6210", "x": 0.6202, "y": 0.634, "gm": "VI medio", "emp": "GCN", "cam": "23-24"}, {"id": "(24-25) 10E - DM 60I62", "var": "DM 60I62", "x": 0.7139, "y": 1.093, "gm": "VI medio", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 10G - DM 60I62", "var": "DM 60I62", "x": 0.6696, "y": 1.682, "gm": "VI medio", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 10K, 11K, 9L, 10L y 11L - DM 60I62", "var": "DM 60I62", "x": 0.6699, "y": 1.252, "gm": "VI medio", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 11E - DM 60I62", "var": "DM 60I62", "x": 0.6943, "y": 0.745, "gm": "VI medio", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 11G - DM 60I62", "var": "DM 60I62", "x": 0.649, "y": 1.383, "gm": "VI medio", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 12E - DM 60I62", "var": "DM 60I62", "x": 0.6746, "y": 0.738, "gm": "VI medio", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 12G - DM 60I62", "var": "DM 60I62", "x": 0.6426, "y": 0.923, "gm": "VI medio", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 13G - DM 60I62", "var": "DM 60I62", "x": 0.6495, "y": 0.829, "gm": "VI medio", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 14D - DM 67I70", "var": "DM 67I70", "x": 0.6609, "y": 0.614, "gm": "VI largo", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 14G - DM 60I62", "var": "DM 60I62", "x": 0.6517, "y": 0.865, "gm": "VI medio", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 15D y 16D - DM 67I70", "var": "DM 67I70", "x": 0.5962, "y": 0.614, "gm": "VI largo", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 15G - DM 60I62", "var": "DM 60I62", "x": 0.664, "y": 0.817, "gm": "VI medio", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 16G - DM 60I62", "var": "DM 60I62", "x": 0.6452, "y": 0.536, "gm": "VI medio", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 1B y 2B - DM 67I70", "var": "DM 67I70", "x": 0.7224, "y": 0.856, "gm": "VI largo", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 7A y 8A - DM 67I70", "var": "DM 67I70", "x": 0.6514, "y": 0.614, "gm": "VI largo", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 7B y 8B - DM 67I70", "var": "DM 67I70", "x": 0.6956, "y": 0.8, "gm": "VI largo", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 7C - DM 60I62", "var": "DM 60I62", "x": 0.6636, "y": 0.72, "gm": "VI medio", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 7D - DM 60I62", "var": "DM 60I62", "x": 0.6866, "y": 0.856, "gm": "VI medio", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 8C - DM 60I62", "var": "DM 60I62", "x": 0.698, "y": 0.794, "gm": "VI medio", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 8D - DM 60I62", "var": "DM 60I62", "x": 0.7088, "y": 0.73, "gm": "VI medio", "emp": "GCN", "cam": "24-25"}, {"id": "(24-25) 9G - DM 60I62", "var": "DM 60I62", "x": 0.66, "y": 1.307, "gm": "VI medio", "emp": "GCN", "cam": "24-25"}, {"id": "(20-21) EE01 - M 6410", "var": "M 6410", "x": 0.7528, "y": 2.31, "gm": "VI largo", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) EE02 - DM 60I62", "var": "DM 60I62", "x": 0.7804, "y": 2.47, "gm": "VI medio", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) EE02 - M 6410", "var": "M 6410", "x": 0.7773, "y": 2.54, "gm": "VI largo", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) EE03 - DM 60I62", "var": "DM 60I62", "x": 0.7932, "y": 2.69, "gm": "VI medio", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) EE04 - DM 60I62", "var": "DM 60I62", "x": 0.7923, "y": 2.43, "gm": "VI medio", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) EE05 - DM 60I62", "var": "DM 60I62", "x": 0.7656, "y": 2.34, "gm": "VI medio", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) EE06 - DM 67I70", "var": "DM 67I70", "x": 0.7748, "y": 1.63, "gm": "VI largo", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) EE07 - DM 67I70", "var": "DM 67I70", "x": 0.7316, "y": 1.66, "gm": "VI largo", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) GT01 - DM 67I70", "var": "DM 67I70", "x": 0.7862, "y": 3.61, "gm": "VI largo", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) GT02 - DM 67I70", "var": "DM 67I70", "x": 0.786, "y": 3.46, "gm": "VI largo", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) HM01 - M 6410", "var": "M 6410", "x": 0.7826, "y": 2.4, "gm": "VI largo", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) HM02 - DM 67I70", "var": "DM 67I70", "x": 0.8066, "y": 1.91, "gm": "VI largo", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) RM01 - DM 75I75", "var": "DM 75I75", "x": 0.6155, "y": 2.04, "gm": "VII medio", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) SC01A - DM 67I70", "var": "DM 67I70", "x": 0.6467, "y": 0.79, "gm": "VI largo", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) SC02A - DM 67I70", "var": "DM 67I70", "x": 0.7166, "y": 1.68, "gm": "VI largo", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) SC03 - DM 75I75", "var": "DM 75I75", "x": 0.663, "y": 2.42, "gm": "VII medio", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) SC04 - DM 67I70", "var": "DM 67I70", "x": 0.7517, "y": 2.52, "gm": "VI largo", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) SC05 - DM 67I70", "var": "DM 67I70", "x": 0.8061, "y": 3.32, "gm": "VI largo", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) SC06 - DM 67I70", "var": "DM 67I70", "x": 0.7784, "y": 3.13, "gm": "VI largo", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(20-21) SC07 - DM 67I70", "var": "DM 67I70", "x": 0.7971, "y": 3.32, "gm": "VI largo", "emp": "Suri Yaco", "cam": "20-21"}, {"id": "(21-22) AB01 - CZ 5907", "var": "CZ 5907", "x": 0.7985, "y": 3.822, "gm": "V largo", "emp": "Suri Yaco", "cam": "21-22"}, {"id": "(21-22) AB02 - CZ 5907", "var": "CZ 5907", "x": 0.7972, "y": 3.802, "gm": "V largo", "emp": "Suri Yaco", "cam": "21-22"}, {"id": "(21-22) CA01 - DM 60I62", "var": "DM 60I62", "x": 0.8168, "y": 4.271, "gm": "VI medio", "emp": "Suri Yaco", "cam": "21-22"}, {"id": "(21-22) CA02 - DM 60I62", "var": "DM 60I62", "x": 0.8138, "y": 4.325, "gm": "VI medio", "emp": "Suri Yaco", "cam": "21-22"}, {"id": "(21-22) CA03 - DM 60I62", "var": "DM 60I62", "x": 0.801, "y": 4.062, "gm": "VI medio", "emp": "Suri Yaco", "cam": "21-22"}, {"id": "(21-22) EE08 - DM 67I70", "var": "DM 67I70", "x": 0.8292, "y": 4.019, "gm": "VI largo", "emp": "Suri Yaco", "cam": "21-22"}, {"id": "(21-22) EE09 - DM 67I70", "var": "DM 67I70", "x": 0.8182, "y": 3.835, "gm": "VI largo", "emp": "Suri Yaco", "cam": "21-22"}, {"id": "(21-22) EE10 - CZ 5907", "var": "CZ 5907", "x": 0.7345, "y": 2.82, "gm": "V largo", "emp": "Suri Yaco", "cam": "21-22"}, {"id": "(21-22) EE10 - DM 67I70", "var": "DM 67I70", "x": 0.8355, "y": 3.6, "gm": "VI largo", "emp": "Suri Yaco", "cam": "21-22"}, {"id": "(21-22) GT03 - AW 6320", "var": "AW 6320", "x": 0.8194, "y": 4.591, "gm": "VI medio", "emp": "Suri Yaco", "cam": "21-22"}, {"id": "(21-22) GT04 - AW 6320", "var": "AW 6320", "x": 0.8174, "y": 4.55, "gm": "VI medio", "emp": "Suri Yaco", "cam": "21-22"}, {"id": "(21-22) GT04 - DM 60I62", "var": "DM 60I62", "x": 0.823, "y": 4.51, "gm": "VI medio", "emp": "Suri Yaco", "cam": "21-22"}, {"id": "(21-22) HM03 - AW 6320", "var": "AW 6320", "x": 0.7739, "y": 3.85, "gm": "VI medio", "emp": "Suri Yaco", "cam": "21-22"}, {"id": "(21-22) HM03 - DM 67I70", "var": "DM 67I70", "x": 0.7879, "y": 3.55, "gm": "VI largo", "emp": "Suri Yaco", "cam": "21-22"}, {"id": "(22-23) EE01 - AW 6320", "var": "AW 6320", "x": 0.7279, "y": 2.389, "gm": "VI medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) EE02 - AW 6320", "var": "AW 6320", "x": 0.771, "y": 2.67, "gm": "VI medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) EE03 - AW 6320", "var": "AW 6320", "x": 0.7869, "y": 2.674, "gm": "VI medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) EE03 - DM 60K60", "var": "DM 60K60", "x": 0.801, "y": 2.674, "gm": "VI medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) EE04 - DM 60K60", "var": "DM 60K60", "x": 0.8054, "y": 2.635, "gm": "VI medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) EE05 - DM 60K60", "var": "DM 60K60", "x": 0.7886, "y": 2.329, "gm": "VI medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) EE06 - DM 67I70", "var": "DM 67I70", "x": 0.8223, "y": 3.036, "gm": "VI largo", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) EE07 - DM 60K60", "var": "DM 60K60", "x": 0.7673, "y": 2.281, "gm": "VI medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) GT01 - AW 6320", "var": "AW 6320", "x": 0.7749, "y": 2.22, "gm": "VI medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) GT01 - DM 60I62", "var": "DM 60I62", "x": 0.7782, "y": 2.86, "gm": "VI medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) GT01 - DM 67I70", "var": "DM 67I70", "x": 0.7359, "y": 3.69, "gm": "VI largo", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) GT02 - AW 6320", "var": "AW 6320", "x": 0.7667, "y": 2.044, "gm": "VI medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) HM01 - AW 6320", "var": "AW 6320", "x": 0.7139, "y": 2.223, "gm": "VI medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) HM02 - DM 60K60", "var": "DM 60K60", "x": 0.7823, "y": 1.986, "gm": "VI medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) RM01 - DM 67I70", "var": "DM 67I70", "x": 0.7274, "y": 2.0, "gm": "VI largo", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) RM01 - DM 75I75", "var": "DM 75I75", "x": 0.7164, "y": 2.23, "gm": "VII medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) RM01 bajo - DM 75I75", "var": "DM 75I75", "x": 0.7208, "y": 2.706, "gm": "VII medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) RM02 - DM 75I75", "var": "DM 75I75", "x": 0.7127, "y": 2.552, "gm": "VII medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) SC01A - DM 75I75", "var": "DM 75I75", "x": 0.7183, "y": 1.635, "gm": "VII medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) SC01B - DM 75I75", "var": "DM 75I75", "x": 0.7766, "y": 2.311, "gm": "VII medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) SC02A - DM 75I75", "var": "DM 75I75", "x": 0.7986, "y": 3.011, "gm": "VII medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) SC02B - DM 75I75", "var": "DM 75I75", "x": 0.7624, "y": 2.204, "gm": "VII medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) SC03 - DM 67I70", "var": "DM 67I70", "x": 0.7834, "y": 2.559, "gm": "VI largo", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) SC04 - DM 67I70", "var": "DM 67I70", "x": 0.7998, "y": 2.716, "gm": "VI largo", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) SC05 - DM 67I70", "var": "DM 67I70", "x": 0.8184, "y": 3.564, "gm": "VI largo", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) SC06 - DM 67I70", "var": "DM 67I70", "x": 0.7917, "y": 3.415, "gm": "VI largo", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) SC07 - DM 67I70", "var": "DM 67I70", "x": 0.8387, "y": 4.44, "gm": "VI largo", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(22-23) SC08 - DM 75I75", "var": "DM 75I75", "x": 0.8112, "y": 3.008, "gm": "VII medio", "emp": "Suri Yaco", "cam": "22-23"}, {"id": "(23-24) AB01 - DM 60K60", "var": "DM 60K60", "x": 0.5845, "y": 0.3, "gm": "VI corto", "emp": "Suri Yaco", "cam": "23-24"}, {"id": "(23-24) AB02 - DM 60K60", "var": "DM 60K60", "x": 0.6089, "y": 0.3, "gm": "VI corto", "emp": "Suri Yaco", "cam": "23-24"}, {"id": "(23-24) GT03 - DM 60I62", "var": "DM 60I62", "x": 0.7118, "y": 1.353, "gm": "VI medio", "emp": "Suri Yaco", "cam": "23-24"}, {"id": "(23-24) GT04 - DM 64K64", "var": "DM 64K64", "x": 0.6628, "y": 0.987, "gm": "VI largo", "emp": "Suri Yaco", "cam": "23-24"}, {"id": "(24-25) CV01 - DM 75K75", "var": "DM 75K75", "x": 0.4127, "y": 0.547, "gm": "VII largo", "emp": "Suri Yaco", "cam": "24-25"}, {"id": "(24-25) CV03 - DM 75K75", "var": "DM 75K75", "x": 0.4317, "y": 0.554, "gm": "VII largo", "emp": "Suri Yaco", "cam": "24-25"}, {"id": "(24-25) CV04 - DM 67I70", "var": "DM 67I70", "x": 0.5367, "y": 0.866, "gm": "VI largo", "emp": "Suri Yaco", "cam": "24-25"}, {"id": "(24-25) CV04 - DM 75K75", "var": "DM 75K75", "x": 0.5391, "y": 0.866, "gm": "VII largo", "emp": "Suri Yaco", "cam": "24-25"}, {"id": "(24-25) EE01 - DM 60I62", "var": "DM 60I62", "x": 0.4888, "y": 0.719, "gm": "VI medio", "emp": "Suri Yaco", "cam": "24-25"}, {"id": "(24-25) EE02 - DM 60I62", "var": "DM 60I62", "x": 0.4787, "y": 0.262, "gm": "VI medio", "emp": "Suri Yaco", "cam": "24-25"}, {"id": "(24-25) EE03 - DM 60I62", "var": "DM 60I62", "x": 0.5765, "y": 0.462, "gm": "VI medio", "emp": "Suri Yaco", "cam": "24-25"}, {"id": "(24-25) EE04 - DM 60I62", "var": "DM 60I62", "x": 0.5616, "y": 0.414, "gm": "VI medio", "emp": "Suri Yaco", "cam": "24-25"}, {"id": "(24-25) EE05 - DM 60I62", "var": "DM 60I62", "x": 0.4632, "y": 0.446, "gm": "VI medio", "emp": "Suri Yaco", "cam": "24-25"}, {"id": "(24-25) EE06 - DM 62R63", "var": "DM 62R63", "x": 0.6004, "y": 0.369, "gm": "VI medio", "emp": "Suri Yaco", "cam": "24-25"}, {"id": "(24-25) EE07 - DM 62R63", "var": "DM 62R63", "x": 0.5743, "y": 0.313, "gm": "VI medio", "emp": "Suri Yaco", "cam": "24-25"}, {"id": "(24-25) GT01 - DM 60I62", "var": "DM 60I62", "x": 0.7308, "y": 1.872, "gm": "VI medio", "emp": "Suri Yaco", "cam": "24-25"}, {"id": "(24-25) GT02 - DM 60I62", "var": "DM 60I62", "x": 0.7416, "y": 1.787, "gm": "VI medio", "emp": "Suri Yaco", "cam": "24-25"}, {"id": "(24-25) HM01 - DM 60I62", "var": "DM 60I62", "x": 0.5547, "y": 0.462, "gm": "VI medio", "emp": "Suri Yaco", "cam": "24-25"}];
+
+        let chartInstance = null, activeModel = null;
+
+        function main() {
+            lucide.createIcons();
+            initSelects();
+            ['selEmpresa','selCampana','selGM','selVariedad'].forEach(id => document.getElementById(id).addEventListener('change', update));
+            document.querySelectorAll('input[name="mType"]').forEach(r => r.addEventListener('change', (e) => {
+                ['lblLin','lblQuad','lblExp'].forEach(l => document.getElementById(l).className = "radio-box flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all");
+                e.target.parentElement.classList.add('active','border-blue-500','bg-blue-50');
+                update();
+            }));
+            document.getElementById('inpX').addEventListener('input', predict);
+            update();
+        }
+
+        function initSelects() {
+            const fill = (id, key) => {
+                const s = document.getElementById(id);
+                const opts = [...new Set(rawData.map(d => d[key]))].sort();
+                s.innerHTML = '<option value="TODOS">TODOS</option>' + opts.map(o => `<option value="${o}">${o}</option>`).join('');
+            };
+            fill('selEmpresa', 'emp'); fill('selCampana', 'cam'); fill('selGM', 'gm'); fill('selVariedad', 'var');
+        }
+
+        function update() {
+            const f = { e: document.getElementById('selEmpresa').value, c: document.getElementById('selCampana').value, g: document.getElementById('selGM').value, v: document.getElementById('selVariedad').value };
+            const selected = rawData.filter(d => (f.e==='TODOS'||d.emp===f.e) && (f.c==='TODOS'||d.cam===f.c) && (f.g==='TODOS'||d.gm===f.g) && (f.v==='TODOS'||d.var===f.v));
+            const unselected = rawData.filter(d => !selected.includes(d));
+            compute(selected, document.querySelector('input[name="mType"]:checked').value);
+            draw(selected, unselected);
+            predict();
+        }
+
+        function compute(pts, type) {
+            const n = pts.length;
+            document.getElementById('valN').innerText = n;
+            if (n < 3) { activeModel = null; document.getElementById('txtEq').innerText = "Muestra insuficiente"; return; }
+            const mY = pts.reduce((a,b)=>a+b.y, 0)/n;
+
+            if (type === 'linear') {
+                let sX=0, sY=0, sXY=0, sXX=0;
+                pts.forEach(d=>{ sX+=d.x; sY+=d.y; sXY+=d.x*d.y; sXX+=d.x*d.x; });
+                const m = (n*sXY - sX*sY)/(n*sXX - sX*sX);
+                const b = (sY - m*sX)/n;
+                activeModel = { f: x => m*x + b, eq: `y = ${m.toFixed(3)}x ${b>=0?'+':'-'} ${Math.abs(b).toFixed(3)}` };
+            } else if (type === 'exponential') {
+                const vPts = pts.filter(p => p.y > 0);
+                let sX=0, sLY=0, sXLY=0, sXX=0;
+                vPts.forEach(d=>{ const ly = Math.log(d.y); sX+=d.x; sLY+=ly; sXLY+=d.x*ly; sXX+=d.x*d.x; });
+                const B = (vPts.length*sXLY - sX*sLY)/(vPts.length*sXX - sX*sX);
+                const A = (sLY - B*sX)/vPts.length;
+                activeModel = { f: x => Math.exp(A) * Math.exp(B*x), eq: `y = ${Math.exp(A).toFixed(2)}e^(${B.toFixed(2)}x)` };
+            } else {
+                let s1=0, s2=0, s3=0, s4=0, sY=0, s1Y=0, s2Y=0;
+                pts.forEach(p=>{ s1+=p.x; s2+=p.x**2; s3+=p.x**3; s4+=p.x**4; sY+=p.y; s1Y+=p.x*p.y; s2Y+=(p.x**2)*p.y; });
+                const det = m => m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1]) - m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0]) + m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);
+                const D = det([[s4,s3,s2],[s3,s2,s1],[s2,s1,n]]);
+                if (Math.abs(D)<1e-25) return;
+                const a = det([[s2Y,s3,s2],[s1Y,s2,s1],[sY,s1,n]])/D;
+                const b = det([[s4,s2Y,s2],[s3,s1Y,s1],[s2,sY,n]])/D;
+                const c = det([[s4,s3,s2Y],[s3,s2,s1Y],[s2,s1,sY]])/D;
+                activeModel = { f: x => a*x**2 + b*x + c, eq: `y = ${a.toFixed(2)}x² ${b>=0?'+':'-'} ${Math.abs(b).toFixed(2)}x ${c>=0?'+':'-'} ${Math.abs(c).toFixed(2)}` };
+            }
+            const ssR = pts.reduce((acc,d)=>acc+(d.y - activeModel.f(d.x))**2, 0);
+            const ssT = pts.reduce((acc,d)=>acc+(d.y - mY)**2, 0);
+            activeModel.r2 = 1-(ssR/ssT);
+            document.getElementById('txtEq').innerText = activeModel.eq;
+            document.getElementById('valR2').innerText = Math.max(0, activeModel.r2).toFixed(4);
+            document.getElementById('valAvg').innerText = (pts.reduce((a,b)=>a+b.y, 0)/n).toFixed(2);
+        }
+
+        function draw(selected, unselected) {
+            const ctx = document.getElementById('yieldChart').getContext('2d');
+            const curve = [];
+            if (activeModel) {
+                for(let i=0.35; i<=1.0; i+=0.02) curve.push({x:i, y:activeModel.f(i)});
+            }
+            if (chartInstance) chartInstance.destroy();
+            chartInstance = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        { label: 'Tendencia', type: 'line', data: curve, borderColor: '#2563eb', borderWidth: 4, pointRadius: 0, fill: false, tension: 0.4, order: 1 },
+                        { label: 'Resto', data: unselected.map(d=>({x:d.x, y:d.y, id:d.id})), backgroundColor: '#e2e8f0', pointRadius: 4, order: 3 },
+                        { label: 'Filtrados', data: selected.map(d=>({x:d.x, y:d.y, id:d.id})), backgroundColor: '#10b981', pointRadius: 7, order: 2 }
+                    ]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (c) => `Lote: ${c.raw.id} | NDVI: ${c.raw.x.toFixed(3)} | Rinde: ${c.raw.y.toFixed(2)}`
+                            }
+                        }
+                    },
+                    scales: { 
+                        x: { type: 'linear', min: 0.35, max: 1.0, title: { display: true, text: 'Vigor (NDVI)', font: { weight: 'bold' } } }, 
+                        y: { min: 0, max: 5.5, title: { display: true, text: 'Rendimiento (Tn/Ha)', font: { weight: 'bold' } } } 
+                    }
+                }
+            });
+        }
+
+        function predict() {
+            const x = parseFloat(document.getElementById('inpX').value);
+            if (activeModel && !isNaN(x)) {
+                const res = Math.max(0, activeModel.f(x));
+                document.getElementById('outY').innerText = res.toFixed(2);
+            } else {
+                document.getElementById('outY').innerText = "--";
+            }
+        }
+        window.onload = main;
+    </script>
+</body>
+</html>
